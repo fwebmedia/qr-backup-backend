@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Backup — Panel Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --accent: #00e5ff;
+      --accent2: #7c3aed;
+      --danger: #ff4757;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --card: #16161f;
+      --success: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,229,255,.08) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(124,58,237,.1) 0%, transparent 60%),
+        var(--bg);
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      padding: 48px 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+    }
+
+    .login-logo {
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--accent);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .login-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 36px;
+      line-height: 1.2;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      margin-bottom: 20px;
+      transition: border-color .2s;
+      outline: none;
+    }
+
+    input:focus { border-color: var(--accent); }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent2), #5b21b6);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .05em;
+      transition: opacity .2s, transform .1s;
+    }
+
+    .btn-primary:hover { opacity: .9; }
+    .btn-primary:active { transform: scale(.98); }
+
+    .error-msg {
+      background: rgba(255,71,87,.1);
+      border: 1px solid rgba(255,71,87,.3);
+      color: var(--danger);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* ── DASHBOARD ── */
+    #dashboard { display: none; }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
+    .brand-name {
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: .02em;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-sm {
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .2s;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .btn-sm:hover { color: var(--text); border-color: var(--text); }
+
+    .btn-danger { border-color: rgba(255,71,87,.4); color: var(--danger); }
+    .btn-danger:hover { background: rgba(255,71,87,.1); border-color: var(--danger); }
+
+    main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+    /* Stats cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+
+    .stat-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-title {
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .btn-refresh {
+      padding: 8px 20px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .btn-refresh:hover { background: rgba(0,229,255,.08); }
+
+    /* Image grid */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .img-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color .2s, transform .2s;
+      position: relative;
+    }
+
+    .img-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .img-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: contain;
+      background: #0d0d14;
+      display: block;
+      padding: 8px;
+    }
+
+    .img-meta {
+      padding: 12px 14px;
+    }
+
+    .img-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+
+    .img-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .img-actions {
+      display: flex;
+      gap: 8px;
+      padding: 0 14px 12px;
+    }
+
+    .btn-view, .btn-del {
+      flex: 1;
+      padding: 6px;
+      border-radius: 5px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      transition: all .15s;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .btn-view { color: var(--accent); border-color: rgba(0,229,255,.3); }
+    .btn-view:hover { background: rgba(0,229,255,.08); }
+
+    .btn-del { color: var(--danger); border-color: rgba(255,71,87,.3); }
+    .btn-del:hover { background: rgba(255,71,87,.08); }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon { font-size: 48px; margin-bottom: 16px; }
+
+    .load-more {
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .btn-load {
+      padding: 12px 36px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-load:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    #toast.show { opacity: 1; }
+    #toast.success { background: var(--success); color: #fff; }
+    #toast.error { background: var(--danger); color: #fff; }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">◈ QR Backup System</div>
+    <h1 class="login-title">Panel de<br/>Administración</h1>
+    <div class="error-msg" id="login-error"></div>
+    <label for="username">Usuario</label>
+    <input type="text" id="username" placeholder="admin" autocomplete="username" />
+    <label for="password">Contraseña</label>
+    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+    <button class="btn-primary" id="login-btn" onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══════════════════════════════════════════ -->
+<div id="dashboard">
+  <header>
+    <div class="header-brand">
+      <div class="brand-dot"></div>
+      <span class="brand-name">QR Backup</span>
+    </div>
+    <div class="header-actions">
+      <span id="user-badge" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)"></span>
+      <button class="btn-sm btn-danger" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total imágenes</div>
+        <div class="stat-value" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Almacenamiento</div>
+        <div class="stat-value" id="stat-size">—</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-title">Galería de respaldos</div>
+      <button class="btn-refresh" onclick="loadImages(true)">↻ Actualizar</button>
+    </div>
+
+    <div class="image-grid" id="image-grid"></div>
+
+    <div class="load-more" id="load-more" style="display:none">
+      <button class="btn-load" onclick="loadImages(false)">Cargar más</button>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ══ CONFIG ════════════════════════════════════════════════
+  const API = window.location.origin + '/api';
+  let token = localStorage.getItem('qr_token');
+  let lastId = null;
+
+  // ══ INIT ══════════════════════════════════════════════════
+  if (token) showDashboard();
+
+  // ══ LOGIN ═════════════════════════════════════════════════
+  document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  async function doLogin() {
+    const btn = document.getElementById('login-btn');
+    const errorEl = document.getElementById('login-error');
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!username || !password) {
+      showError(errorEl, 'Completa todos los campos');
+      return;
+    }
+
+    btn.innerHTML = '<span class="spinner"></span>Verificando…';
+    btn.disabled = true;
+    errorEl.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Error de login');
+
+      token = data.token;
+      localStorage.setItem('qr_token', token);
+      showDashboard();
+    } catch (err) {
+      showError(errorEl, err.message);
+    } finally {
+      btn.innerHTML = 'Ingresar';
+      btn.disabled = false;
+    }
+  }
+
+  function showError(el, msg) {
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  // ══ DASHBOARD ═════════════════════════════════════════════
+  function showDashboard() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+
+    // Mostrar usuario
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      document.getElementById('user-badge').textContent = `@${payload.username}`;
+    } catch {}
+
+    loadStats();
+    loadImages(true);
+  }
+
+  async function loadStats() {
+    try {
+      const res = await authFetch('/images/stats');
+      const data = await res.json();
+      document.getElementById('stat-total').textContent = data.totalImages ?? '—';
+      document.getElementById('stat-size').textContent = data.totalSizeMB ? `${data.totalSizeMB} MB` : '—';
+    } catch {}
+  }
+
+  async function loadImages(reset = true) {
+    if (reset) { lastId = null; document.getElementById('image-grid').innerHTML = ''; }
+
+    const url = lastId ? `/images?limit=24&startAfter=${lastId}` : '/images?limit=24';
+
+    try {
+      const res = await authFetch(url);
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+
+      renderImages(data.images, reset);
+      lastId = data.lastId;
+      document.getElementById('load-more').style.display = data.hasMore ? 'block' : 'none';
+    } catch (err) {
+      toast('Error al cargar imágenes', 'error');
+    }
+  }
+
+  function renderImages(images, reset) {
+    const grid = document.getElementById('image-grid');
+
+    if (reset && images.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">📂</div>
+          <p>No hay imágenes guardadas aún.</p>
+        </div>`;
+      return;
+    }
+
+    images.forEach(img => {
+      const card = document.createElement('div');
+      card.className = 'img-card';
+      card.id = `card-${img.id}`;
+      const date = new Date(img.uploadedAt).toLocaleString('es-EC', { dateStyle:'short', timeStyle:'short' });
+      card.innerHTML = `
+        <img src="${img.publicUrl}" alt="${img.originalName}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text y=\\'.9em\\' font-size=\\'60\\' x=\\'50%\\' text-anchor=\\'middle\\'>🖼</text></svg>'" />
+        <div class="img-meta">
+          <div class="img-name" title="${img.originalName}">${img.originalName}</div>
+          <div class="img-date">${date}</div>
+        </div>
+        <div class="img-actions">
+          <a class="btn-view" href="${img.publicUrl}" target="_blank">Ver</a>
+          <button class="btn-del" onclick="deleteImage('${img.id}')">Eliminar</button>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  async function deleteImage(id) {
+    if (!confirm('¿Eliminar esta imagen del respaldo?')) return;
+    try {
+      const res = await authFetch(`/images/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        document.getElementById(`card-${id}`)?.remove();
+        toast('Imagen eliminada', 'success');
+        loadStats();
+      } else {
+        toast('Error al eliminar', 'error');
+      }
+    } catch {
+      toast('Error de conexión', 'error');
+    }
+  }
+
+  // ══ UTILS ═════════════════════════════════════════════════
+  function authFetch(path, opts = {}) {
+    return fetch(`${API}${path}`, {
+      ...opts,
+      headers: { 'Authorization': `Bearer ${token}`, ...(opts.headers || {}) }
+    });
+  }
+
+  function logout() {
+    localStorage.removeItem('qr_token');
+    token = null;
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+
+  function toast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    setTimeout(() => el.className = '', 2500);
+  }
+</script>
+</body>
+</html>

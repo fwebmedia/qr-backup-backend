@@ -1,6 +1,6 @@
 # QR Backup Backend
 
-Backend Express.js para respaldo de imágenes generadas en [f-webmedia.com/qr-generator](https://f-webmedia.com/qr-generator).
+Backend Express.js para respaldo de imágenes generadas.
 
 Almacena imágenes en **Firebase Storage** y metadata en **Firestore**, con autenticación JWT y panel de administración web.
 

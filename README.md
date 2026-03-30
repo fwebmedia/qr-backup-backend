@@ -35,7 +35,7 @@ FIREBASE_CLIENT_ID=123456789
 FIREBASE_STORAGE_BUCKET=mi-proyecto.appspot.com
 ```
 
-> ⚠️ La `FIREBASE_PRIVATE_KEY` debe tener los saltos de línea como `\n` literal dentro de comillas dobles.
+> La `FIREBASE_PRIVATE_KEY` debe tener los saltos de línea como `\n` literal dentro de comillas dobles.
 
 ### 2. Firebase Storage — Reglas
 

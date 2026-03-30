@@ -56,7 +56,7 @@ service firebase.storage {
 ### 3. Contraseña de administrador
 
 ```bash
-node scripts/generate-hash.js TuContraseñaSegura123
+node scripts/generate-hash.js TuContraseñaSegura
 ```
 
 Copia el hash al `.env`:
@@ -79,7 +79,7 @@ JWT_SECRET=tu_clave_aleatoria_aqui
 ### 5. CORS — Orígenes permitidos
 
 ```env
-ALLOWED_ORIGINS=https://f-webmedia.com,http://localhost:3000
+ALLOWED_ORIGINS=https://tuweb.com,http://localhost:3000
 ```
 
 ---
@@ -158,7 +158,7 @@ Estadísticas generales.
 
 ## 🔗 Integrar con el formulario QR
 
-En el proyecto de `f-webmedia.com/qr-generator`, al momento de generar la imagen, agrega:
+En el proyecto de `tuweb.com/qr-generator`, al momento de generar la imagen, agrega:
 
 ```javascript
 async function backupQRImage(imageBlob, label) {
